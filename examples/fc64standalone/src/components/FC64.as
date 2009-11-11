@@ -25,7 +25,7 @@ package components
 	import flash.events.*;
 	import core.events.*;
 	import core.cpu.*;
-	import c64.memory.*;
+	import c64.memory.MemoryManager;
 	import c64.screen.*;
 	import c64.events.*;
 	import flash.display.DisplayObject;
@@ -77,7 +77,7 @@ package components
 			// $A483 is the main Basic program loop
 			// set a breakpoint here so we know when the C64 is ready for action
 			_cpu.addEventListener("cpuResetInternal", onCPUReset);
-			//_cpu.setBreakpoint(0xA483, 255);
+			_cpu.setBreakpoint(0xA483, 255);
 		}
 		
 		private function addedToStage(event:Event):void

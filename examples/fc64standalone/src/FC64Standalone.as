@@ -24,6 +24,8 @@ package
 	// IMPORTS ////////////////////////////////////////////////////////////////////////////////
 
 	import flash.display.Sprite;
+	import flash.display.Bitmap;
+	import flash.display.BlendMode;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.text.TextField;
@@ -34,6 +36,12 @@ package
 	import c64.events.DebuggerEvent;
 	import c64.events.FrameRateInfoEvent;
 
+	import flash.net.URLRequest;
+	import flash.net.URLLoader;
+	import flash.net.URLLoaderDataFormat;
+	import flash.utils.ByteArray;
+	import flash.utils.Endian;
+	
 	// CLASS //////////////////////////////////////////////////////////////////////////////////
 
 	public class FC64Standalone extends Sprite
@@ -43,6 +51,10 @@ package
 		// MEMBERS ////////////////////////////////////////////////////////////////////////////
 		
 		private var fc64:FC64;
+		private var cellValuesBitmap:Bitmap;
+		private var readCellsBitmap:Bitmap;
+		private var writtenCellsBitmap:Bitmap;
+		private var state:String = "normal";
 		
 		// CONSTRUCTOR ////////////////////////////////////////////////////////////////////////
 		
@@ -62,44 +74,37 @@ package
 			fc64 = new FC64();
 			fc64.addEventListener("cpuReset", onCPUReset, false, 0, true);
 			/*fc64.addEventListener("frameRateInfo§", onFrameRateInfo, false, 0, true);*/
-			/*fc64.addEventListener("stop", onStop, false, 0, true);*/
+			fc64.addEventListener("stop", onStop, false, 0, true);
 			addChild(fc64);
 			fc64.renderer.start();
 			//fc64.cpu.reset();
-		}
-		
-		private function onLoadPRG(e:Event):void
-		{
-			/*var ba:ByteArray = ByteArray(e.target.data);
-			// get start address
-			ba.endian = Endian.LITTLE_ENDIAN;
-			var startAddress:int = ba.readShort();
-			// copy contents
-			var addr:int = startAddress;
-			for(var i:uint = 0x02; i < ba.length; i++) {
-				fc64.mem.write(addr++, ba[i]);
-			}
-			if(startAddress == 0x0801) {
-				// run command
-				var charsInBuffer:uint = fc64.mem.read(0xc6);
-				if(charsInBuffer < fc64.mem.read(0x0289) - 4) {
-					var keyboardBuffer:uint = 0x0277 + charsInBuffer + 1;
-					fc64.mem.write(keyboardBuffer++, 82); // R
-					fc64.mem.write(keyboardBuffer++, 85); // U
-					fc64.mem.write(keyboardBuffer++, 78); // N
-					fc64.mem.write(keyboardBuffer++, 13); // Return
-					fc64.mem.write(0xc6, charsInBuffer + 5);
-				}
-			} else {
-				fc64.cpu.pc = startAddress;
-			}
-			software.enabled = true;
-			software.selectedIndex = -1;
-			loadButton.enabled = false;
-			state = "normal";*/
+			
+			cellValuesBitmap = new Bitmap(fc64.mem.cellValuesBmpData);
+			addChild(cellValuesBitmap);
+			cellValuesBitmap.x = 0;
+			cellValuesBitmap.y = 300;
+			
+			readCellsBitmap = new Bitmap(fc64.mem.readCellsBmpData);
+			addChild(readCellsBitmap);
+			readCellsBitmap.x = 300;
+			readCellsBitmap.y = 300;
+
+			writtenCellsBitmap = new Bitmap(fc64.mem.writtenCellsBmpData);
+			addChild(writtenCellsBitmap);
+			writtenCellsBitmap.x = 300;
+			writtenCellsBitmap.y = 300;
+			writtenCellsBitmap.blendMode = BlendMode.ADD;
+			
+			addEventListener(Event.ENTER_FRAME, refresh, false, 0, true);
 		}
 		
 		// EVENT HANDLERS /////////////////////////////////////////////////////////////////////
+		
+		private function refresh(event:Event):void
+		{
+			fc64.mem.decayReadCells();
+			fc64.mem.decayWrittenCells();
+		}
 		
 		private function onCPUReset(e:CPUResetEvent):void
 		{
@@ -111,21 +116,61 @@ package
 		private function onStop(e:DebuggerEvent):void
 		{
 			trace("onStop", e);
+			
 			if (e.breakpointType == 255)
 			{
-				/*if (state == "loading")
+				if (state == "loading")
 				{
-					var fileName:String = software.selectedItem.filename;
+					var fileName:String = "prg/DYCP.PRG";
+					/*var fileName:String = "prg/BARS.PRG";*/
+					/*var fileName:String = "prg/GA.PRG";*/
 					var request:URLRequest = new URLRequest(fileName);
 					var loader:URLLoader = new URLLoader();
 					loader.dataFormat = URLLoaderDataFormat.BINARY;
 					loader.addEventListener(Event.COMPLETE, onLoadPRG);
 					loader.load(request);
 				} else {
-					software.enabled = true;
-				}*/
-				//fc64.renderer.start();
+					// hold till reset is complete
+					state = "loading";
+					fc64.cpu.reset();
+				}
+				
+				fc64.renderer.start();
 			}
+		}
+		
+		private function onLoadPRG(e:Event):void
+		{
+			var ba:ByteArray = ByteArray(e.target.data);
+			// get start address
+			ba.endian = Endian.LITTLE_ENDIAN;
+			var startAddress:int = ba.readShort();
+			// copy contents
+			var addr:int = startAddress;
+			
+			for(var i:uint = 0x02; i < ba.length; i++)
+			{
+				fc64.mem.write(addr++, ba[i]);
+			}
+			
+			if(startAddress == 0x0801)
+			{
+				// run command
+				var charsInBuffer:uint = fc64.mem.read(0xc6);
+				if(charsInBuffer < fc64.mem.read(0x0289) - 4)
+				{
+					var keyboardBuffer:uint = 0x0277 + charsInBuffer + 1;
+					fc64.mem.write(keyboardBuffer++, 82); // R
+					fc64.mem.write(keyboardBuffer++, 85); // U
+					fc64.mem.write(keyboardBuffer++, 78); // N
+					fc64.mem.write(keyboardBuffer++, 13); // Return
+					fc64.mem.write(0xc6, charsInBuffer + 5);
+				}
+			} else {
+				fc64.cpu.pc = startAddress;
+			}
+			
+			state = "normal";
 		}
 		
 		private function onFrameRateInfo(e:FrameRateInfoEvent):void
