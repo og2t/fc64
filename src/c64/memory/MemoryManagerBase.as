@@ -280,11 +280,12 @@ package c64.memory
 			var startAddress:int = ba.readShort();
 			trace("Start address: $" + Convert.toHex(startAddress, 4));
 			// copy contents
+			var addr:int = startAddress;
 			for(var i:uint = 0x02; i < ba.length; i++) {
-				write(startAddress++, ba[i]);
+				write(addr++, ba[i]);
 			}
 			writeWord(0x002b, 0x0801);
-			writeWord(0x002d, startAddress);
+			writeWord(0x002d, addr + 1);
 			writeWord(0x002f, startAddress);
 			writeWord(0x0031, startAddress);
 			dispatchEvent(new Event("complete"));

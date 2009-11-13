@@ -37,13 +37,13 @@ package components
 	
 	public class FC64 extends Sprite
 	{
-		[Embed(source="../../roms/kernal.901227-03.bin",mimeType="application/octet-stream")]
+		[Embed(source="../../../bin/roms/kernal.901227-03.bin",mimeType="application/octet-stream")]
 		private const ROMKernel:Class;
 
-		[Embed(source="../../roms/basic.901226-01.bin",mimeType="application/octet-stream")]
+		[Embed(source="../../../bin/roms/basic.901226-01.bin",mimeType="application/octet-stream")]
 		private const ROMBasic:Class;
 
-		[Embed(source="../../roms/characters.901225-01.bin",mimeType="application/octet-stream")]
+		[Embed(source="../../../bin/roms/characters.901225-01.bin",mimeType="application/octet-stream")]
 		private const ROMChar:Class;
 		
 		public var listenerTarget:DisplayObject;
