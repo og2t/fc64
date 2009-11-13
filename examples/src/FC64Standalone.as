@@ -48,6 +48,10 @@ package
 	import net.blog2t.display.BitmapDebugger;
 	import flash.events.KeyboardEvent;
 	
+	import flash.display.StageQuality;
+	import flash.display.StageAlign;
+    import flash.display.StageScaleMode;
+	
 	// CLASS //////////////////////////////////////////////////////////////////////////////////
 
 	public class FC64Standalone extends Sprite
@@ -83,6 +87,11 @@ package
 		public function init(event:Event = null):void
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
+			
+			stage.scaleMode = StageScaleMode.NO_SCALE;
+			stage.align = StageAlign.TOP_LEFT;
+			stage.quality = StageQuality.MEDIUM;
+			stage.frameRate = 60;
 			
 			fc64 = new FC64();
 			fc64.addEventListener("cpuReset", onCPUReset, false, 0, true);
