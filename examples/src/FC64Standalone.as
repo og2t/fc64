@@ -43,6 +43,7 @@ package
 	import net.hires.debug.Stats;
 
 	import net.blog2t.util.BitmapDebugGUI;
+	import org.libspark.ui.SWFWheel;  
 	
 	// CLASS //////////////////////////////////////////////////////////////////////////////////
 
@@ -58,7 +59,7 @@ package
 		private var writtenCellsBitmap:Bitmap;
 		private var state:String = "normal";
 		
-		private var stats:Stats = new Stats(true);
+		private var stats:Stats = new Stats(false);
 		private var bitmapDebugGUI:BitmapDebugGUI;
 		
 		private var mergedBmpData:BitmapData = new BitmapData(256, 256, false, 0x000000);
@@ -90,13 +91,16 @@ package
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
+			SWFWheel.initialize(stage);
+			
 			fc64 = new FC64();
 			fc64.addEventListener("cpuReset", onCPUReset, false, 0, true);
-			/*fc64.addEventListener("frameRateInfo§", onFrameRateInfo, false, 0, true);*/
+			fc64.addEventListener("frameRateInfo", onFrameRateInfo, false, 0, true);
 			fc64.addEventListener("stop", onStop, false, 0, true);
 			addChild(fc64);
 			fc64.x = -5 + 10;
 			fc64.y = 13 + 10;
+			fc64.cpu.setBreakpoint(0xA483, 255);
 			fc64.renderer.start();
 			//fc64.cpu.reset();
 			
@@ -155,7 +159,6 @@ package
 		private function onCPUReset(e:CPUResetEvent):void
 		{
 			trace("reset");
-			fc64.cpu.setBreakpoint(0xA483, 255);
 			//fc64.renderer.start();
 		}
 		

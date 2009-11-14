@@ -78,10 +78,12 @@ package net.blog2t.util
 		
 		public function draw():void
 		{
+			var time:Number = getTimer();
+			
 			var offsetX:int = _pixelX * (_scale - (1 - _scale / _sizeX));
 			var offsetY:int = _pixelY * (_scale - (1 - _scale / _sizeY));
 			
-			if (_scale <= 12)
+			if (_scale <= 40)
 			{
 				matrix.identity();
 				matrix.scale(_scale, _scale);
@@ -89,11 +91,11 @@ package net.blog2t.util
 				_outputBmpData.draw(inputBmpData, matrix);
 			}
 			
-			if (_scale > 8)
+			if (_scale > 18)
 			{
-				if (_scale > 8 && _scale <= 18) debugBox.gotoAndStop(1);
-				if (_scale > 18 && _scale <= 28) debugBox.gotoAndStop(2);
-				else if (_scale > 28) debugBox.gotoAndStop(3);
+				if (_scale > 18 && _scale <= 28) debugBox.gotoAndStop(1);
+				if (_scale > 28 && _scale <= 38) debugBox.gotoAndStop(2);
+				else if (_scale > 38) debugBox.gotoAndStop(3);
 				
 				var visibleSquaresX:int = _sizeX / _scale + 2;
 				var visibleSquaresY:int = _sizeY / _scale + 2;
@@ -106,7 +108,6 @@ package net.blog2t.util
 				var readX:int = Range.mapInt(_pixelX, 0, _sizeX, 0, _sizeX - _sizeX / _scale + 1);
 				var readY:int = Range.mapInt(_pixelY, 0, _sizeY, 0, _sizeY - _sizeY / _scale + 1);
 
-				//var time:Number = getTimer();
 				var tMatrix:Matrix = new Matrix();
 
 				for (var y:int = 0; y < visibleSquaresY; y++)
@@ -121,12 +122,12 @@ package net.blog2t.util
 						debugBox.valueTF.text = Convert.toHex(color & 0xff, 2);
 						
 						// bitmap scale bug
-						if (_scale > 12) _outputBmpData.fillRect(new Rectangle(tMatrix.tx, tMatrix.ty, _scale, _scale), color);
+						if (_scale > 40) _outputBmpData.fillRect(new Rectangle(tMatrix.tx, tMatrix.ty, _scale, _scale), color);
 						_outputBmpData.draw(debugBox, tMatrix, null, "difference");
 					}
 				}
-				//trace(getTimer() - time, "ms");
 			}
+			trace(getTimer() - time, "ms");
 		}
 		
 		// PRIVATE METHODS ////////////////////////////////////////////////////////////////////

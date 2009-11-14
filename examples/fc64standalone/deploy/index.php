@@ -17,6 +17,8 @@
 			src: 'FC64.swf',
 			width: 440,
 			height: 620,
+			id: "fc64",
+			name: "fc64",
 			flashvars:
 			{
 			    <?php if (isset($_GET['url'])) echo "prgURL: \"".$_GET['url']."\""; ?>
