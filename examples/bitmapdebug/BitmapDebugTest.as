@@ -24,13 +24,8 @@ package
 	// IMPORTS ////////////////////////////////////////////////////////////////////////////////
 
 	import flash.display.Sprite;
-	import flash.display.Bitmap;
 	import flash.events.Event;
-	import flash.events.KeyboardEvent;
-	import flash.events.MouseEvent;
-	import flash.text.TextField;
-	
-	import net.blog2t.display.BitmapDebugger;
+	import net.blog2t.util.BitmapDebugGUI;
 
 	// CLASS //////////////////////////////////////////////////////////////////////////////////
 
@@ -43,37 +38,24 @@ package
 		[Embed(source="memshot.png")]
 		private var Memshot:Class;
 		
-		private var memBitmap:Bitmap;
-		private var debugBitmap:Bitmap;
-		
-		private var bitmapDebugger:BitmapDebugger;
-		
 		// CONSTRUCTOR ////////////////////////////////////////////////////////////////////////
 		
 		public function BitmapDebugTest(stageInit:Boolean = true) 
 		{
 			if (stageInit) addEventListener(Event.ADDED_TO_STAGE, init, false, 0, true);
 			
-			memBitmap = new Memshot();
-			bitmapDebugger = new BitmapDebugger(memBitmap.bitmapData);
+			var bitmapDebugGUI:BitmapDebugGUI = new BitmapDebugGUI(new Memshot().bitmapData);
+			addChild(bitmapDebugGUI);
+			bitmapDebugGUI.x = 100;
+			bitmapDebugGUI.y = 100;
 			
-			debugBitmap = new Bitmap(bitmapDebugger.outputBmpData);
-			addChild(debugBitmap);
-			debugBitmap.x = 100;
-			debugBitmap.y = 100;
-			
-			stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseMove, false, 0, true);
-			stage.addEventListener(MouseEvent.CLICK, mouseClick, false, 0, true);
-			stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDown, false, 0, true);
-			
-			bitmapDebugger.scale = 31;
-			bitmapDebugger.pixelX = 0;
-			bitmapDebugger.pixelY = 0;
-			bitmapDebugger.draw();
+			var info:Info = new Info();
+			addChild(info);
+			info.x = 100;
+			info.y = 356;
 		}
 
 		// PUBLIC METHODS /////////////////////////////////////////////////////////////////////
-		
 		// PRIVATE METHODS ////////////////////////////////////////////////////////////////////
 		
 		public function init(event:Event = null):void
@@ -82,34 +64,6 @@ package
 		}
 				
 		// EVENT HANDLERS /////////////////////////////////////////////////////////////////////
-		
-		private function keyDown(event:KeyboardEvent):void
-		{
-			if (event.keyCode == 189) bitmapDebugger.scale--;
-			else if (event.keyCode == 187) bitmapDebugger.scale++;
-			else if (event.keyCode == 37) bitmapDebugger.pixelX -= 0.1;
-			else if (event.keyCode == 38) bitmapDebugger.pixelY -= 0.1;
-			else if (event.keyCode == 39) bitmapDebugger.pixelX += 0.1;
-			else if (event.keyCode == 40) bitmapDebugger.pixelY += 0.1;
-			else if (event.keyCode == 0x30) bitmapDebugger.scale = 1;
-			
-			bitmapDebugger.draw();
-		}
-		
-		private function mouseMove(event:MouseEvent):void
-		{
-			bitmapDebugger.pixelX = mouseX - debugBitmap.x;
-			bitmapDebugger.pixelY = mouseY - debugBitmap.y;
-			bitmapDebugger.draw();
-		}
-		
-		private function mouseClick(event:MouseEvent):void
-		{
-			bitmapDebugger.pixelX = mouseX - debugBitmap.x;
-			bitmapDebugger.pixelY = mouseY - debugBitmap.y;
-			bitmapDebugger.draw();
-		}
-		
 		// GETTERS & SETTERS //////////////////////////////////////////////////////////////////
 		// HELPERS ////////////////////////////////////////////////////////////////////////////
 	}

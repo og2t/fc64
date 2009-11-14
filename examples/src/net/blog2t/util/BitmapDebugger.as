@@ -19,7 +19,7 @@
 
 ---------------------------------------------------------------------------------------------*/
 
-package net.blog2t.display
+package net.blog2t.util
 {
 	// IMPORTS ////////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +32,7 @@ package net.blog2t.display
 	
 	import core.misc.Convert;
 	import flash.geom.Matrix;
+	import flash.geom.Rectangle;
 	import net.blog2t.math.Range;
 	import flash.utils.getTimer;
 
@@ -40,7 +41,10 @@ package net.blog2t.display
 	public class BitmapDebugger extends Sprite
 	{
 		// CONSTANTS //////////////////////////////////////////////////////////////////////////
-
+		
+		[Embed(source="bitmapdebugbox.swf", symbol="BitmapDebugBox")]
+		private const BitmapDebugBox:Class;
+		
 		// MEMBERS ////////////////////////////////////////////////////////////////////////////
 		
 		private var _sizeX:int;
@@ -54,7 +58,7 @@ package net.blog2t.display
 		
 		private var inputBmpData:BitmapData;
 		private var matrix:Matrix = new Matrix();
-		private var debugBox:MovieClip;
+		private var debugBox:MovieClip = new BitmapDebugBox();
 		
 		// CONSTRUCTOR ////////////////////////////////////////////////////////////////////////
 		
@@ -74,56 +78,54 @@ package net.blog2t.display
 		
 		public function draw():void
 		{
-			matrix.identity();
-			matrix.scale(_scale, _scale);
 			var offsetX:int = _pixelX * (_scale - (1 - _scale / _sizeX));
 			var offsetY:int = _pixelY * (_scale - (1 - _scale / _sizeY));
-			matrix.translate(-offsetX, -offsetY);
 			
-			_outputBmpData.fillRect(_outputBmpData.rect, 0x000000);
-			_outputBmpData.draw(inputBmpData, matrix);
-			
-			var boxScale:Number = _scale / 100;
-
-			if (_scale > 16 && _scale < 20) debugBox = new DebugBoxValue();
-			else if (_scale > 20) debugBox = new DebugBoxAddress();
-
-			if (_scale > 16)
+			if (_scale <= 12)
 			{
+				matrix.identity();
+				matrix.scale(_scale, _scale);
+				matrix.translate(-offsetX, -offsetY);
+				_outputBmpData.draw(inputBmpData, matrix);
+			}
+			
+			if (_scale > 8)
+			{
+				if (_scale > 8 && _scale <= 18) debugBox.gotoAndStop(1);
+				if (_scale > 18 && _scale <= 28) debugBox.gotoAndStop(2);
+				else if (_scale > 28) debugBox.gotoAndStop(3);
+				
 				var visibleSquaresX:int = _sizeX / _scale + 2;
 				var visibleSquaresY:int = _sizeY / _scale + 2;
+
+				var bitmapRealWidth:int = _sizeX * _scale;
+				var bitmapRealHeight:int = _sizeY * _scale;
+				var squaresX:Number = (-bitmapRealWidth - offsetX) % _scale;
+				var squaresY:Number = (-bitmapRealHeight - offsetY) % _scale;
 
 				var readX:int = Range.mapInt(_pixelX, 0, _sizeX, 0, _sizeX - _sizeX / _scale + 1);
 				var readY:int = Range.mapInt(_pixelY, 0, _sizeY, 0, _sizeY - _sizeY / _scale + 1);
 
-				//var boxMatrix:Matrix = new Matrix();
-				//FIXME	optimize this shit
-				// draw / colorize also background when scale > 16
-				
-				//have MCs in assets.swf
-				//create separate class with mouse activation
-				
-				var bitmapRealWidth:int = _sizeX * _scale;
-				var bitmapRealHeight:int = _sizeY * _scale;
-				var squaresX:int = (-bitmapRealWidth - offsetX) % _scale;
-				var squaresY:int = (-bitmapRealHeight - offsetY) % _scale;
-
-				var time:Number = getTimer();
+				//var time:Number = getTimer();
+				var tMatrix:Matrix = new Matrix();
 
 				for (var y:int = 0; y < visibleSquaresY; y++)
 				{
+					tMatrix.ty = squaresY + y * _scale;
+					
 					for (var x:int = 0; x < visibleSquaresX; x++)
 					{
-						matrix.identity();
-						matrix.scale(boxScale, boxScale);
-						matrix.translate(squaresX + x * _scale, squaresY + y * _scale);
+						tMatrix.tx = squaresX + x * _scale;
 						if (debugBox.addressTF) debugBox.addressTF.text = Convert.toHex((readY + y) * 0x100 + readX + x, 4);
-						debugBox.valueTF.text = Convert.toHex(inputBmpData.getPixel(readX + x, readY + y) & 0xff, 2);
-						_outputBmpData.draw(debugBox, matrix, null, "difference");
+						var color:uint = inputBmpData.getPixel(readX + x, readY + y);
+						debugBox.valueTF.text = Convert.toHex(color & 0xff, 2);
+						
+						// bitmap scale bug
+						if (_scale > 12) _outputBmpData.fillRect(new Rectangle(tMatrix.tx, tMatrix.ty, _scale, _scale), color);
+						_outputBmpData.draw(debugBox, tMatrix, null, "difference");
 					}
 				}
-				
-				trace(getTimer() - time, "ms");
+				//trace(getTimer() - time, "ms");
 			}
 		}
 		
@@ -164,7 +166,7 @@ package net.blog2t.display
 		
 		public function set scale(value:int):void
 		{
-			if (value < 1 || value > 255) return;
+			if (value < 1 || value > 256) return;
 			_scale = value;
 		}
 

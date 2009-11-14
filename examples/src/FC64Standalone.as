@@ -45,7 +45,7 @@ package
 	
 	import net.hires.debug.Stats;
 	
-	import net.blog2t.display.BitmapDebugger;
+	import net.blog2t.util.BitmapDebugGUI;
 	import flash.events.KeyboardEvent;
 	
 	import flash.display.StageQuality;
@@ -66,10 +66,8 @@ package
 		private var writtenCellsBitmap:Bitmap;
 		private var state:String = "normal";
 		
-		private var debugBitmap:Bitmap;
-		private var bitmapDebugger:BitmapDebugger;
-		
 		private var stats:Stats = new Stats(true);
+		private var bitmapDebugGUI:BitmapDebugGUI;
 		
 		private var mergedBmpData:BitmapData = new BitmapData(256, 256, false, 0x000000);
 		
@@ -118,50 +116,17 @@ package
 			writtenCellsBitmap.y = 300;
 			writtenCellsBitmap.blendMode = BlendMode.ADD;*/
 
-			bitmapDebugger = new BitmapDebugger(mergedBmpData);
+			bitmapDebugGUI = new BitmapDebugGUI(mergedBmpData);
+			addChild(bitmapDebugGUI);
+			bitmapDebugGUI.x = 0;
+			bitmapDebugGUI.y = 300;
 
-			debugBitmap = new Bitmap(bitmapDebugger.outputBmpData);
-			addChild(debugBitmap);
-			debugBitmap.x = 0;
-			debugBitmap.y = 300;
-			
-			stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseMove, false, 0, true);
-			stage.addEventListener(MouseEvent.CLICK, mouseClick, false, 0, true);
-			stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDown, false, 0, true);
-			
-			bitmapDebugger.scale = 1;
-			bitmapDebugger.draw();
-			
-			
 			addChild(stats);
 			
 			addEventListener(Event.ENTER_FRAME, refresh, false, 0, true);
 		}
 		
 		// EVENT HANDLERS /////////////////////////////////////////////////////////////////////
-		
-		private function keyDown(event:KeyboardEvent):void
-		{
-			if (event.keyCode == 189) bitmapDebugger.scale--;
-			else if (event.keyCode == 187) bitmapDebugger.scale++;
-			else if (event.keyCode == 37) bitmapDebugger.pixelX -= 0.1;
-			else if (event.keyCode == 38) bitmapDebugger.pixelY -= 0.1;
-			else if (event.keyCode == 39) bitmapDebugger.pixelX += 0.1;
-			else if (event.keyCode == 40) bitmapDebugger.pixelY += 0.1;
-			else if (event.keyCode == 0x30) bitmapDebugger.scale = 1;
-		}
-		
-		private function mouseMove(event:MouseEvent):void
-		{
-			bitmapDebugger.pixelX = mouseX - debugBitmap.x;
-			bitmapDebugger.pixelY = mouseY - debugBitmap.y;
-		}
-		
-		private function mouseClick(event:MouseEvent):void
-		{
-			bitmapDebugger.pixelX = mouseX - debugBitmap.x;
-			bitmapDebugger.pixelY = mouseY - debugBitmap.y;
-		}
 		
 		private function refresh(event:Event):void
 		{
@@ -172,7 +137,7 @@ package
 			mergedBmpData.draw(fc64.mem.readCellsBmpData, null, null, "add");
 			mergedBmpData.draw(fc64.mem.writtenCellsBmpData, null, null, "add");
 			
-			bitmapDebugger.draw();
+			bitmapDebugGUI.draw();
 		}
 		
 		private function onCPUReset(e:CPUResetEvent):void
