@@ -1,7 +1,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>FC64 standalone test</title>
+<title>FC64 with memory debug</title>
 <script src="js/jquery-1.3.min.js" language="javascript"></script>
 <script src="js/jquery.flash.js" language="javascript"></script>
 </head>
@@ -14,12 +14,12 @@
 	{
 		$('#fc64').flash(
 		{ 
-			src: 'fc64.swf',
+			src: 'FC64.swf',
 			width: 440,
 			height: 620,
 			flashvars:
 			{
-			    prgURL: "http://intros.c64.org/inc_download.php?iid=283"
+			    <?php if (isset($_GET['url'])) echo "prgURL: \"".$_GET['url']."\""; ?>
 			}
 		}, { version: 9 });
 	});
@@ -27,7 +27,3 @@
 
 </body>
 </html>
-
-
-
-

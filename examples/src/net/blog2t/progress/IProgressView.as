@@ -1,4 +1,4 @@
-package net.blog2t.display.progress
+package net.blog2t.progress
 {
 	import flash.events.Event;
 	

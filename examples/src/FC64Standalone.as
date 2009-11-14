@@ -37,20 +37,12 @@ package
 	import c64.events.DebuggerEvent;
 	import c64.events.FrameRateInfoEvent;
 
-	import flash.net.URLRequest;
-	import flash.net.URLLoader;
-	import flash.net.URLLoaderDataFormat;
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
 	
 	import net.hires.debug.Stats;
-	
+
 	import net.blog2t.util.BitmapDebugGUI;
-	import flash.events.KeyboardEvent;
-	
-	import flash.display.StageQuality;
-	import flash.display.StageAlign;
-    import flash.display.StageScaleMode;
 	
 	// CLASS //////////////////////////////////////////////////////////////////////////////////
 
@@ -70,12 +62,24 @@ package
 		private var bitmapDebugGUI:BitmapDebugGUI;
 		
 		private var mergedBmpData:BitmapData = new BitmapData(256, 256, false, 0x000000);
+		private var prgURL:String = "prg/2nd.spherical---.prg";
+		/*var fileName:String = "prg/DYCP.PRG";*/
+		/*var fileName:String = "prg/2nd.spherical---.prg";*/
+		/*var fileName:String = "prg/krestyron.prg";*/
+		/*var fileName:String = "prg/sw.cosmo prv_atl.prg";*/
+		/*var fileName:String = "prg/BARS.PRG";*/
+		/*var fileName:String = "prg/GA.PRG";*/
 		
 		// CONSTRUCTOR ////////////////////////////////////////////////////////////////////////
 		
-		public function FC64Standalone(stageInit:Boolean = true) 
+		public function FC64Standalone(flashvars:Object, stageInit:Boolean = true) 
 		{
 			if (stageInit) addEventListener(Event.ADDED_TO_STAGE, init, false, 0, true);
+			
+			if (flashvars.prgURL != undefined)
+			{
+				prgURL = "http://play.blog2t.net/files/proxy/?url=" + flashvars.prgURL;
+			}
 		}
 
 		// PUBLIC METHODS /////////////////////////////////////////////////////////////////////
@@ -86,17 +90,13 @@ package
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
-			stage.scaleMode = StageScaleMode.NO_SCALE;
-			stage.align = StageAlign.TOP_LEFT;
-			stage.quality = StageQuality.MEDIUM;
-			stage.frameRate = 60;
-			
 			fc64 = new FC64();
 			fc64.addEventListener("cpuReset", onCPUReset, false, 0, true);
 			/*fc64.addEventListener("frameRateInfo§", onFrameRateInfo, false, 0, true);*/
 			fc64.addEventListener("stop", onStop, false, 0, true);
 			addChild(fc64);
-			fc64.x = 100;
+			fc64.x = -5 + 10;
+			fc64.y = 13 + 10;
 			fc64.renderer.start();
 			//fc64.cpu.reset();
 			
@@ -116,12 +116,24 @@ package
 			writtenCellsBitmap.y = 300;
 			writtenCellsBitmap.blendMode = BlendMode.ADD;*/
 
+			var screen:Screen = new Screen();
+			addChild(screen);
+			screen.x = 10;
+			screen.y = 10;
+
 			bitmapDebugGUI = new BitmapDebugGUI(mergedBmpData);
 			addChild(bitmapDebugGUI);
-			bitmapDebugGUI.x = 0;
-			bitmapDebugGUI.y = 300;
+			bitmapDebugGUI.y = 330;
+			bitmapDebugGUI.x = 20;
+
+			var info:Info = new Info();
+			addChild(info);
+			info.y = 586;
+			info.x = 20;
 
 			addChild(stats);
+			stats.x = 300;
+			stats.y = 330;
 			
 			addEventListener(Event.ENTER_FRAME, refresh, false, 0, true);
 		}
@@ -155,15 +167,8 @@ package
 			{
 				if (state == "loading")
 				{
-					/*fc64.mem.loadPRG("prg/DYCP.PRG");*/
-					fc64.mem.loadPRG("prg/2nd.spherical---.prg");
+					fc64.mem.loadPRG(prgURL);
 					fc64.mem.addEventListener("complete", runPRG, false, 0, true);
-					/*var fileName:String = "prg/DYCP.PRG";*/
-					var fileName:String = "prg/2nd.spherical---.prg";
-					/*var fileName:String = "prg/krestyron.prg";*/
-					/*var fileName:String = "prg/sw.cosmo prv_atl.prg";*/
-					/*var fileName:String = "prg/BARS.PRG";*/
-					/*var fileName:String = "prg/GA.PRG";*/
 				} else {
 					// hold till reset is complete
 					state = "loading";

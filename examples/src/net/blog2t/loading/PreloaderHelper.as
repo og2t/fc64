@@ -61,7 +61,7 @@ package net.blog2t.loading
 {
 	// IMPORTS ////////////////////////////////////////////////////////////////////////////////
 
-	import net.blog2t.display.progress.IProgressView;
+	import net.blog2t.progress.IProgressView;
 	import flash.display.LoaderInfo;
 	import flash.display.Sprite;
 	import flash.display.Stage;

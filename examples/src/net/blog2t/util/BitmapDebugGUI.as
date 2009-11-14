@@ -46,7 +46,7 @@ package net.blog2t.util
 		private var debugBitmap:Bitmap;
 		private var bitmapHolder:Sprite = new Sprite();
 		private var bitmapDebugger:BitmapDebugger;
-		private var outline:GlowFilter = new GlowFilter(0xFF0000, 1.0, 2, 2, 2, 2);
+		private var outline:GlowFilter = new GlowFilter(0x888888, 1.0, 2, 2, 10, 1);
 		
 		// CONSTRUCTOR ////////////////////////////////////////////////////////////////////////
 		
@@ -56,6 +56,7 @@ package net.blog2t.util
 
 			bitmapDebugger = new BitmapDebugger(inputBmpData);
 			debugBitmap = new Bitmap(bitmapDebugger.outputBmpData);
+			debugBitmap.filters = [outline];
 			
 			addEventListener(MouseEvent.CLICK, mouseClick, false, 0, true);
 			addChild(debugBitmap);
@@ -81,6 +82,7 @@ package net.blog2t.util
 			stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseMove, false, 0, true);
 			stage.addEventListener(MouseEvent.MOUSE_WHEEL, mouseWheel, false, 0, true);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDown, false, 0, true);
+			outline.color = 0xCC2200;
 			debugBitmap.filters = [outline];
 		}
 
@@ -89,7 +91,8 @@ package net.blog2t.util
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
 			stage.removeEventListener(MouseEvent.MOUSE_WHEEL, mouseWheel);
 			stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyDown);
-			debugBitmap.filters = [];
+			outline.color = 0x888888;
+			debugBitmap.filters = [outline];
 		}
 		
 		// PRIVATE METHODS ////////////////////////////////////////////////////////////////////
